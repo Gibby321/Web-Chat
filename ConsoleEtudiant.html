@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Classe Virtuelle</title>
+        <style>
+            #zone_chat strong {
+                color: white;
+                background-color: black;
+                padding: 2px;
+            }
+			
+			 #zone_chat {
+				height: 200px;
+				width: 50%;
+				background-color: powderblue;
+				overflow-y: scroll;
+				text-align: left;
+			}	
+        </style>
+    </head>
+ 
+    <body>
+	<center>
+        <h1>Chat temps réel avec le Prof</h1>
+
+		<section id="zone_chat">
+            
+        </section>
+        <form action="/" method="post" id="formulaire_chat">
+            <input type="text" name="message" id="message" placeholder="Votre message..." size="50" autofocus />
+            <input type="submit" id="envoi_message" value="Envoyer" />
+        </form>
+        
+
+
+        <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+
+            // Connexion à socket.io
+            var socket = io.connect('http://localhost:8080');
+			
+			var pseudo = prompt('Quel est votre Nom ?');
+			document.cookie = pseudo;
+			socket.emit('nouveau_client', pseudo);
+			document.title = pseudo + ' - ' + document.title;
+			
+            // Quand on reçoit un message, on l'insère dans la page
+            socket.on('nouveau_message', function(data) {
+				console.log(data.message);
+                insereMessage(data.pseudo, data.message);
+            });
+
+            // Quand un nouveau client se connecte, on affiche l'information
+            socket.on('nouveau_client', function(pseudo) {
+                $('#zone_chat').prepend('<p><em>' + pseudo + ' a rejoint le Chat!</em></p>');
+            });
+			
+			 // Quand un client se reconnect
+            socket.on('reconnect', function(pseudo) {
+                $('#zone_chat').prepend('<p><em>' + pseudo + ' a re connecter au chat!</em></p>');
+            });
+			
+			// Quand un prof se connect
+            socket.on('Connect_Prof', function(pseudo) {
+                $('#zone_chat').prepend('<p>Le professeur <em>' + pseudo + ' a rejoint le Chat !</em></p>');
+            });
+
+            // Lorsqu'on envoie le formulaire, on transmet le message et on l'affiche sur la page
+            $('#formulaire_chat').submit(function () {
+                var message = $('#message').val();
+                socket.emit('nouveau_message', message); // Transmet le message aux autres
+                insereMessage(pseudo, message); // Affiche le message aussi sur notre page
+                $('#message').val('').focus(); // Vide la zone de Chat et remet le focus dessus
+                return false; // Permet de bloquer l'envoi "classique" du formulaire
+            });
+            
+            // Ajoute un message dans la page
+            function insereMessage(pseudo, message) {
+                $('#zone_chat').prepend('<p><strong>' + pseudo + '</strong> ' + message + '</p>');
+            };
+			
+        </script>
+		</center>
+    </body>
+</html>
+

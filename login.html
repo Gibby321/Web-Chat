@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Login</title>
+        <style>
+            #zone_chat strong {
+                color: white;
+                background-color: black;
+                padding: 2px;
+            }
+        </style>
+    </head>
+ 
+    <body>
+	<center>
+        <h1>Login Prof</h1>
+
+        <form action="/" method="post" id="Login_form">
+            <input type="text" name="user" id="user" placeholder="Username" size="50" autofocus /><br>
+			<input type="text" name="pass" id="pass" placeholder="Password" size="50" /><br>
+            <input type="submit" id="envoi_message" value="Envoyer" />
+        </form>
+		
+
+        <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+
+            // Connexion à socket.io
+            var socket = io.connect('http://localhost:8080');
+
+            // Lorsqu'on envoie le formulaire, on transmet le message et on l'affiche sur la page
+            $('#Login_form').submit(function () {
+                var user = $('#user').val();
+				var pass = $('#pass').val();
+                socket.emit('login', user, pass); // Transmet le message aux autres
+                return false; // Permet de bloquer l'envoi "classique" du formulaire
+            })
+			
+			socket.on('login_fail', function() {
+				document.getElementById("pass").value = "";
+				alert("login fail");
+            })
+			
+			socket.on('redirect', function(destination, pseudo) {
+				window.location.href = destination;
+				 // Store it in the cookies
+					document.cookie = pseudo
+
+					// Get it in the profile.html
+					var cookie = document.cookie;
+            })
+			
+        </script>
+	</center>
+    </body>
+</html>
+

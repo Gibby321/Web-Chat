@@ -1,0 +1,9 @@
+CREATE TABLE `logger` (
+  `Username` varchar(223),
+  `Type` varchar(223),
+  `Timestamp` date
+);
+CREATE TABLE `userlogin` (
+  `Username` varchar(225),
+  `Pass` varchar(225)
+)
